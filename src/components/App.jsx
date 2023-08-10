@@ -1,6 +1,6 @@
 import { SearchBar } from './SearchBar/SearchBar';
 import styles from './App.module.css';
-import { Component, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getImages } from '../api/api.services';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
@@ -10,7 +10,7 @@ import { Audio } from 'react-loader-spinner';
 export const App = () => {
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
-  const [per_page, setPerpage] = useState(12);
+  const [per_page, setPerPage] = useState(12);
   const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isShown, setIsShown] = useState(false);
