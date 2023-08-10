@@ -33,6 +33,7 @@ export const App = () => {
     setValue(submittedValue);
     setPage(1);
     setImages([]);
+    setPerPage(12);
   };
 
   const handleLoadMore = () => {
