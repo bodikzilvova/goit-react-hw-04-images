@@ -1,73 +1,63 @@
 import { SearchBar } from './SearchBar/SearchBar';
 import styles from './App.module.css';
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import { getImages } from '../api/api.services';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
 import { Audio } from 'react-loader-spinner';
 
-export class App extends Component {
-  state = {
-    images: [],
-    page: 1,
-    per_page: 12,
-    value: '',
-    isLoading: false,
-    isShown: false,
-    largeImage: '',
-  };
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [per_page, setPerpage] = useState(12);
+  const [value, setValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShown, setIsShown] = useState(false);
+  const [largeImage, setLargeImage] = useState('');
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.value !== this.state.value ||
-      prevState.page !== this.state.page
-    ) {
-      const { value, page } = this.state;
-      this.setState({ isLoading: true });
+  useEffect(() => {
+    if (value && page) {
+      setIsLoading(true);
       getImages(value, page)
         .then(({ hits }) => {
-          this.setState(prevState => ({
-            images: [...prevState.images, ...hits],
-          }));
+          setImages(prevImages => [...prevImages, ...hits]);
         })
         .finally(() => {
-          this.setState({ isLoading: false });
+          setIsLoading(false);
         });
     }
-  }
+  }, [value, page]);
 
-  handleSubmit = value => {
-    this.setState({ value: value, page: 1, images: [] });
+  const handleSubmit = submittedValue => {
+    setValue(submittedValue);
+    setPage(1);
+    setImages([]);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  handleOpenModal = largeImage => {
-    this.setState({ isShown: true, largeImage: largeImage });
+  const handleOpenModal = largeImage => {
+    setIsShown(true);
+    setLargeImage(largeImage);
   };
 
-  handleCloseModal = () => {
-    this.setState({ isShown: false, largeImage: '' });
+  const handleCloseModal = () => {
+    setIsShown(false);
+    setLargeImage('');
   };
 
-  render() {
-    const { images, isLoading, isShown, largeImage, per_page, page } =
-      this.state;
-    return (
-      <div className={styles.App}>
-        <SearchBar onSubmit={this.handleSubmit} />
-        <ImageGallery images={images} onOpenModal={this.handleOpenModal} />
-        {images.length >= per_page * page && (
-          <Button handleLoadMore={this.handleLoadMore} />
-        )}
-        {isLoading && <Audio />}
-        {isShown && (
-          <Modal image={largeImage} onCloseModal={this.handleCloseModal} />
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div className={styles.App}>
+      <SearchBar onSubmit={handleSubmit} />
+      <ImageGallery images={images} onOpenModal={handleOpenModal} />
+      {images.length >= per_page * page && (
+        <Button handleLoadMore={handleLoadMore} />
+      )}
+      {isLoading && <Audio />}
+      {isShown && <Modal image={largeImage} onCloseModal={handleCloseModal} />}
+    </div>
+  );
+};
