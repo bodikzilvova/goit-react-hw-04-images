@@ -15,18 +15,20 @@ export const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isShown, setIsShown] = useState(false);
   const [largeImage, setLargeImage] = useState('');
-
+  const shouldShowLoadMoreButton = images.length >= per_page * page;
   useEffect(() => {
-    if (value && page) {
-      setIsLoading(true);
-      getImages(value, page)
-        .then(({ hits }) => {
-          setImages(prevImages => [...prevImages, ...hits]);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    if (!value) {
+      return;
     }
+
+    setIsLoading(true);
+    getImages(value, page)
+      .then(({ hits }) => {
+        setImages(prevImages => [...prevImages, ...hits]);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [value, page]);
 
   const handleSubmit = submittedValue => {
@@ -54,9 +56,7 @@ export const App = () => {
     <div className={styles.App}>
       <SearchBar onSubmit={handleSubmit} />
       <ImageGallery images={images} onOpenModal={handleOpenModal} />
-      {images.length >= per_page * page && (
-        <Button handleLoadMore={handleLoadMore} />
-      )}
+      {shouldShowLoadMoreButton && <Button handleLoadMore={handleLoadMore} />}
       {isLoading && <Audio />}
       {isShown && <Modal image={largeImage} onCloseModal={handleCloseModal} />}
     </div>
